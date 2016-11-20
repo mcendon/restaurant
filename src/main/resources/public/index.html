@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css" media="screen" />
+    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap-theme.min.css" media="screen" />
+    <link rel="stylesheet" href="bower_components/angularjs-slider/dist/rzslider.min.css" media="screen" />
+    <link rel="stylesheet" href="bower_components/angular-moment-picker/dist/angular-moment-picker.min.css" media="screen" title="no title">
+    <link rel="stylesheet" href="bower_components/bootstrap-star-rating/css/star-rating.min.css" media="screen" title="no title">
+    <link rel="stylesheet" href="styles/menu.css" media="screen" />
+    <title>Restaurant - Menúes</title>
+  </head>
+  <body ng-app="menuApp">
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="#">Restaurant</a>
+        </div>
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#">Menú</a></li>
+            <li><a href="#">Promociones</a></li>
+            <li><a href="#">Empleados</a></li>
+            <li><a href="#">Reportes</a></li>
+          </ul>
+        </div>
+      </div>
+    </nav>
+    <div class="container-fluid" ng-controller="MenuController as menuController">
+      <div class="row">
+        <div class="col-md-12">
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Filtros</h3>
+            </div>
+            <div class="panel-body">
+              <form class="form-inline">
+                <div class="form-group">
+                  <label for="availableDays">Dias disponibles</label>
+                  <select ng-model="menuController.filters.day" class="form-control" multiple="multiple">
+                    <option ng-repeat="day in menuController.data.days" value="{{$index}}">{{day}}</option>
+                    <option value="-1">Cualquier dia</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="price">Precio</label>
+                  <rzslider class="price-slider"
+                    rz-slider-model="menuController.filters.price.min"
+                    rz-slider-high="menuController.filters.price.max"
+                    rz-slider-options="menuController.filters.price.options"></rzslider>
+                </div>
+                <div class="form-group">
+                  <label for="dateFrom">Fecha desde</label>
+                  <div class="input-group"
+                       locale="es"
+                       moment-picker="menuController.filters.dateFrom"
+                       format="DD/MM/YYYY">
+                      <input class="form-control"
+                             placeholder="Seleccionar fecha"
+                             ng-model="menuController.filters.dateFrom"
+                             ng-model-options="{ updateOn: 'blur' }">
+                  </div>
+                  <div></div>
+                  <label for="dateFrom">Fecha hasta&nbsp;</label>
+                  <div class="input-group"
+                       locale="es"
+                       moment-picker="menuController.filters.dateTo"
+                       format="DD/MM/YYYY">
+                      <input class="form-control"
+                             placeholder="Seleccionar fecha"
+                             ng-model="menuController.filters.dateTo"
+                             ng-model-options="{ updateOn: 'blur' }">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="dateFrom">Hora desde</label>
+                  <div class="input-group"
+                       moment-picker="menuController.filters.timeFrom"
+                       locale="es"
+                       format="HH:mm">
+                      <input class="form-control"
+                             placeholder="Seleccionar hora"
+                             ng-model="menuController.filters.timeFrom"
+                             ng-model-options="{ updateOn: 'blur' }">
+                  </div>
+                  <div class=""></div>
+                  <label for="dateFrom">Hora hasta&nbsp;</label>
+                  <div class="input-group"
+                       moment-picker="menuController.filters.timeTo"
+                       locale="es"
+                       format="HH:mm">
+                      <input class="form-control"
+                             placeholder="Seleccionar hora"
+                             ng-model="menuController.filters.timeTo"
+                             ng-model-options="{ updateOn: 'blur' }">
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div class="panel panel-default">
+            <div class="panel-heading">
+              <h3 class="panel-title">Listado</h3>
+            </div>
+            <div class="panel-body">
+              <table class="table table-hover">
+
+              </table>
+              <ul class="list-group">
+                <li class="list-group-item" ng-repeat="menu in menuController.data.menus" ng-show="menu.visible">
+                  <div class="menu-item">
+                    <div class="row">
+                      <div class="col-md-2 col-xs-3 col-sm-2">
+                          <span class="cursor-pointer" ng-click="menuController.showDetails(menu)">{{menu.name}}</span>
+                      </div>
+                      <div class="col-md-1 col-xs-3 col-sm-1">
+                          <span class="cursor-pointer" ng-click="menuController.showDetails(menu)">{{menu.currency}}&nbsp;{{menu.price}}</span>
+                      </div>
+                      <div class="col-md-3 hidden-xs col-sm-3">
+                          <span class="cursor-pointer" ng-click="menuController.showDetails(menu)">Válido del {{formatDate(menu.validFrom, 'DD/MM/YYYY')}} al {{formatDate(menu.validTo, 'DD/MM/YYYY')}}</span>
+                      </div>
+                      <div class="col-md-2 col-xs-2 col-sm-2">
+                        <button ng-click="menuController.showDetails(menu)" class="btn btn-primary" type="button" name="button"><span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span><span class="hidden-xs">&nbsp;Detalles</span></button>
+                      </div>
+                      <div class="col-md-2 col-xs-2 col-sm-2">
+                        <button ng-click="menuController.delete(menu)" class="btn btn-danger" type="button" name="button"><span class="glyphicon glyphicon-trash" aria-hidden="true"></span><span class="hidden-xs">&nbsp;Borrar</span></button>
+                      </div>
+                      <div class="col-md-2 col-xs-2 col-sm-2">
+                        <button ng-click="menuController.edit(menu)" class="btn btn-warning" type="button" name="button"><span class="glyphicon glyphicon-pencil" aria-hidden="true"></span><span class="hidden-xs">&nbsp;Editar</span></button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="panel panel-info menu-detail" ng-show="menu.detailsVisible">
+                    <div class="panel-body">
+                      <div class="media">
+                        <div class="media-left">
+                          <a href="#">
+                            <img class="media-object img-thumbnail" src="{{menu.photo}}" />
+                          </a>
+                        </div>
+                        <div class="media-body">
+                          <h4 class="media-heading">{{menu.name}}</h4>
+                          <p>{{menu.description}}</p>
+                          <p>Válido los dias {{formatDays(menu.days)}} del {{formatDate(menu.validFrom, 'DD/MM/YYYY')}} al {{formatDate(menu.validTo, 'DD/MM/YYYY')}}</p>
+                          <p>Horario: De {{menu.timeFrom}} a {{menu.timeTo}} hs </p>
+                          <p><input type="number" class="rating" value="{{menu.stars}}" data-display-only="true" data-stars="5" min="1" max="5" step="1" data-size="xs"></p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div id="underConstructionModal" class="modal fade bs-example-modal-sm" tabindex="-1" role="dialog">
+      <div class="modal-dialog modal-sm" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="underConstructionLabel">En construcción</h4>
+          </div>
+          <div class="modal-body">
+          </div>
+        </div>
+      </div>
+    </div>
+    <script src="bower_components/angular/angular.min.js" charset="utf-8"></script>
+    <script src="bower_components/angularjs-slider/dist/rzslider.min.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js" charset="utf-8"></script>
+    <script src="bower_components/moment/min/moment.min.js" charset="utf-8"></script>
+    <script src="bower_components/moment/min/locales.min.js" charset="utf-8"></script>
+    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js" charset="utf-8"></script>
+    <script src="bower_components/angular-moment-picker/dist/angular-moment-picker.min.js" charset="utf-8"></script>
+    <script src="bower_components/bootstrap-star-rating/js/star-rating.min.js" charset="utf-8"></script>
+    <script src="scripts/menu.js" charset="utf-8"></script>
+  </body>
+</html>
